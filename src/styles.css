@@ -2,6 +2,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body,#root{height:100%;overflow:hidden;background:var(--ink);color:#fbeed1;font-family:'Cormorant Garamond',Georgia,serif}
 .intro-screen{position:fixed;inset:0;z-index:20;overflow:hidden;background:#050203;opacity:1;transition:opacity .7s ease,filter .7s ease}
+.brand-logo{position:fixed;z-index:30;top:50%;left:50%;width:min(76vw,540px);height:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 4px 22px rgba(0,0,0,.8));transition:top .9s cubic-bezier(.2,.8,.2,1),left .9s cubic-bezier(.2,.8,.2,1),width .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.brand-logo.is-docked{top:clamp(14px,2.5vh,26px);left:clamp(14px,2.5vw,28px);width:clamp(88px,11vw,132px);transform:translate(0,0)}
 .intro-screen.is-fading{opacity:0;filter:saturate(.15) brightness(.48);pointer-events:none}
 .intro-video,.fallback-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .intro-video{filter:saturate(1);transition:filter .7s ease}
@@ -74,4 +76,4 @@ html,body,#root{height:100%;overflow:hidden;background:var(--ink);color:#fbeed1;
 @keyframes rise{0%{transform:translate(0,0);opacity:0}10%{opacity:.9}90%{opacity:.5}100%{transform:translate(var(--dx),-105vh);opacity:0}}
 @keyframes pop{0%{transform:translate(0,0) scale(.4);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx),-140px) scale(1);opacity:0}}
 @keyframes glow{from{text-shadow:0 0 8px rgba(242,198,109,.3)}to{text-shadow:0 0 26px rgba(242,198,109,.9)}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important}.sparks,.rays{display:none}.card,.bg-art{opacity:1}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important}.sparks,.rays{display:none}.card,.bg-art{opacity:1}}

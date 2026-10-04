@@ -161,6 +161,12 @@ export default function App() {
         <p className="presented-by">Presented By~ MLN Alliance Mediacrew</p>
       </section>
       </main>}
+
+      <img
+        className={`brand-logo${phase === 'reveal' ? ' is-docked' : ''}`}
+        src="/assets/Logo.PNG"
+        alt="MLN Alliance Mediacrews"
+      />
     </>
   )
 }
