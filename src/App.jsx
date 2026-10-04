@@ -17,7 +17,34 @@ const calc = () => {
 const pad = (n) => String(n).padStart(2, '0')
 const rnd = (a, b) => a + Math.random() * (b - a)
 
-function Particles({ n = 34, burst = false }) {
+function Countdown() {
+  const [t, setT] = useState(calc)
+
+  useEffect(() => {
+    const id = setInterval(() => setT(calc()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const units = [['Days', t.days], ['Hours', t.hours], ['Minutes', t.minutes], ['Seconds', t.seconds]]
+
+  if (t.done) {
+    return <div className="begun"><Particles n={20} burst /><h2>NAVRANG HAS BEGUN</h2></div>
+  }
+
+  return (
+    <div className="count">
+      {units.map(([label, value]) => (
+        <div className="unit" key={label}>
+          <span className="num" aria-hidden="true">{pad(value)}</span>
+          <span className="lab">{label}</span>
+          <span className="sr">{value} {label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Particles({ n = 14, burst = false }) {
   const items = useMemo(
     () => Array.from({ length: n }, () => ({
       '--x': `${rnd(0, 100)}%`, '--s': `${rnd(2, burst ? 6 : 4)}px`,
@@ -28,18 +55,25 @@ function Particles({ n = 34, burst = false }) {
 }
 
 export default function App() {
-  const [t, setT] = useState(calc)
   const [phase, setPhase] = useState('video')
   const [isFading, setIsFading] = useState(false)
-  const [introProgress, setIntroProgress] = useState(0)
   const [introPlaying, setIntroPlaying] = useState(false)
   const videoRef = useRef(null)
+  const introProgressRef = useRef(null)
+  const logoRef = useRef(null)
   const videoWatchdogRef = useRef(null)
   const fadeStartedRef = useRef(false)
 
   useEffect(() => {
-    const id = setInterval(() => setT(calc()), 1000)
-    return () => clearInterval(id)
+    const updateLogoScale = () => {
+      const baseWidth = Math.min(window.innerWidth * 0.76, 540)
+      const dockedWidth = Math.min(Math.max(window.innerWidth * 0.11, 88), 132)
+      logoRef.current?.style.setProperty('--dock-scale', String(dockedWidth / baseWidth))
+    }
+
+    updateLogoScale()
+    window.addEventListener('resize', updateLogoScale)
+    return () => window.removeEventListener('resize', updateLogoScale)
   }, [])
 
   useEffect(() => {
@@ -69,7 +103,9 @@ export default function App() {
 
   const updateIntroFade = (event) => {
     const video = event.currentTarget
-    if (video.duration) setIntroProgress((video.currentTime / video.duration) * 100)
+    if (video.duration && introProgressRef.current) {
+      introProgressRef.current.style.transform = `scaleX(${video.currentTime / video.duration})`
+    }
     if (video.duration && video.currentTime >= video.duration - INTRO_FADE_MS / 1000) {
       startIntroFade()
     }
@@ -86,8 +122,6 @@ export default function App() {
     setTimeout(() => setPhase('reveal'), fadeWasAlreadyStarted ? 0 : INTRO_FADE_MS)
   }
 
-  const units = [['Days', t.days], ['Hours', t.hours], ['Minutes', t.minutes], ['Seconds', t.seconds]]
-
   return (
     <>
       {phase === 'video' && (
@@ -99,7 +133,7 @@ export default function App() {
             autoPlay
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             onTimeUpdate={updateIntroFade}
             onEnded={finishIntro}
             onPlaying={handleIntroPlaying}
@@ -111,7 +145,7 @@ export default function App() {
             <div className="intro-progress" aria-hidden="true">
               <span>Entering Navrang...</span>
               <div className="intro-progress-track">
-                <i style={{ transform: `scaleX(${introProgress / 100})` }} />
+                <i ref={introProgressRef} />
               </div>
             </div>
           )}
@@ -122,7 +156,7 @@ export default function App() {
         <div className={`intro-screen fallback-screen${isFading ? ' is-fading' : ''}`}>
           <div className="fallback-art" aria-hidden="true" />
           <div className="intro-overlay" aria-hidden="true" />
-          <Particles n={24} />
+          <Particles n={10} />
           <div className="loadline" aria-hidden="true" />
         </div>
       )}
@@ -145,24 +179,13 @@ export default function App() {
         <p className="tag">Let the Navrang begin</p>
         <p className="date">17 October 2026</p>
 
-        {t.done ? (
-          <div className="begun"><Particles n={40} burst /><h2>NAVRANG HAS BEGUN</h2></div>
-        ) : (
-          <div className="count">
-            {units.map(([l, v]) => (
-              <div className="unit" key={l}>
-                <span className="num" aria-hidden="true">{pad(v)}</span>
-                <span className="lab">{l}</span>
-                <span className="sr">{v} {l}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <Countdown />
         <p className="presented-by">Presented By~ MLN Alliance Mediacrew</p>
       </section>
       </main>}
 
       <img
+        ref={logoRef}
         className={`brand-logo${phase === 'reveal' ? ' is-docked' : ''}`}
         src="/assets/Logo.PNG"
         alt="MLN Alliance Mediacrews"
